@@ -1,0 +1,6 @@
+{
+  "alpha": 0.5,
+  "edgecolors": "blue",
+  "facecolors": "skyblue",
+  "linewidths": 1
+}
