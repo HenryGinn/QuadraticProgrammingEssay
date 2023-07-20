@@ -103,9 +103,8 @@ b = np.array([0, 0, 0, 4, 4, 4])
 poly = Poly(A, b, ax)
 poly.plot_polytope()
 
-
 normal = np.array([1, 1, 1])
-p = 1
+p = 2
 plane = np.array([[1, -1, 0],
                   [-1, 1, 0],
                   [0, 1, -1],
@@ -126,7 +125,6 @@ objective_function = Poly(plane, plane_limits, ax,
                           edgecolors="red")
 objective_function.create_polygon(0)
 
-
 intersection = np.concatenate((plane, A), axis=0)
 intersection_limits = np.concatenate((plane_limits, b), axis=0, dtype="float")
 intersection_limits[0] = intersection_limits[0] -0.01
@@ -135,8 +133,10 @@ objective_function = Poly(intersection, intersection_limits, ax,
                           edgecolors="purple")
 objective_function.create_polygon(0)
 
+ax.view_init(elev=16, azim=-41, roll=0)
 
-ax.view_init(elev=13, azim=-45, roll=0)
-
-#plt.savefig("3D Polytope Optimal Objective Function.pdf", format="pdf")
-plt.show()
+#plt.show()
+#plt.savefig("3D Polytope.pdf", format="pdf")
+#plt.savefig("3D Polytope Initial Objective Function.pdf", format="pdf")
+#plt.savefig("3D Polytope Suboptimal Objective Function.pdf", format="pdf")
+plt.savefig("3D Polytope Optimal Objective Function.pdf", format="pdf")
