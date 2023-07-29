@@ -1,3 +1,17 @@
+% Make a note about what $n$ and $m$ are
+% Make a note about what $u$ is (an arbitrary variable that could be spatial or slack, maybe make the distinction that it is non-basic though)
+% Make a note about what the profit row and profit column are
+
+
+\textbf{Case 1:} the $s_1$ constraint intersects the $x_1$ axis where $x_1 < 0$. In this situation the equation is a function of $x_1$, but the intersection is infeasible. This happens when the coefficient of $x_1$ is negative. We have the equation $s_1 = b - c_{11}x_1 - \dots - c_{1n}x_n$
+
+$x_1 = \frac{1}{c_{11}} (b - s_1 - c_{12}x_2 - \dots - c_{1n}x_n)$. As $x_2 = \dots = x_n = 0 = s_1$, the equation simplifies to $x_1 = \frac{b}{c_{11}}$. As $b \ge 0$ and $c_{11} < 0$, this implies that $x_1$ is negative which breaks the positivity constraint imposed on it. 
+
+\textbf{Case 2:} the equation corresponding to $s_1$ was not a function of $x_1$. Taking the dot product between the $s_1$ constraint normal and the vector pointing along the $x_1$ axis gives us $0$ as the coefficient of $x_1$ in the constraint is $0$. This implies that the $x_1$ axis is parallel to the constraint and never intersects it, or it lies within the constraint. In the latter case there is no edge that connects the two constraints so it is impossible between them directly. The former case is more complicated. Previously we were at the intersection of $n$ constraints with linearly independent normal vectors, $v_1, \dots, v_n$, and we are replacing one of these normal vectors with another. We will call this replacement vector $v$, and without loss of generality we will replace $v_1$. The vectors $v_1, \dots, v_n$ must span the space so they form a basis, and thus there exists scalars $\alpha_1, \dots, \alpha_n$ not all equal to 0 such that $v = \alpha_1 v_1 + \dots + \alpha_n v_n$. $v$ is perpendicular to $v_1$, so $\alpha_1$ must be 0, and $v$ is a linear combination of $v_2, \dots, v_n$. Therefore the span of this set of vectors has been reduced from $n$ to $n - 1$, and the intersection of the constraints no longer defines a vertex. Instead it defines an edge, and the simplex algorithm will break down.
+
+
+
+
 % Note: include definition of active constraint
 % Note: include definition of linear independence
 
@@ -12,3 +26,86 @@ We want to rearrange our system of equations so that it no longer gives the valu
 Case 1 - the equation corresponding to $s_1$ was not a function of $x_1$. This means that the $x_1$ axis either lies within the $s_1$ constraint hyperplane, or it is parallel to it. This can be seen by taking the dot product with the plane normal and the vector pointing in the direction of the $x_1$ axis. If the first of these subcases occurs then it means 
 
 Case 2 - the $s_1$ constraint intersects the $x_1$ axis where $x_1 < 0$. In this situation the equation is a function of $x_1$, but the intersection is infeasible. This happens when the coefficient of $x_1$ is negative. We have the equation $s_1 = b - c_{11}x_1 - \dots - c_{1n}x_n$
+
+
+The variables that we allow to be positive are the basic variables, and they correspond to the constraints that are not imposed to be active. As one may expect, the variables imposed to be $0$ are referred to as non-basic variables, and they correspond to the constraints that are imposed to be active. As $n$ linearly independent hyperplanes define a unique vertex, we have $n$ variables that are non-basic and $m$ variables that are basic. If all the slack variables are non-basic and all the spatial variables are basic then the vertex described is the origin, as we saw in the above example. Our system of constraints is always written as a system of equations for the basic variables in terms of the non-basic variables, and the basic variables are decoupled from the other equations.
+
+In the above example we moved along the $x_1$ axis from the origin until we hit the constraint originally corresponding to $s_1$. $x_1$ became a basic variable and $s_1$ became a non-basic variable. We call the variable that becomes non-basic the \textit{exiting variable}, and the variable that becomes basic the \textit{entering variable}. During the algorithm we will usually think about the system in terms of which variables are basic, which is why these definitions are written in terms of the set of basic variables instead of the set of non-basic variables.
+
+The system of equations is usually written as a grid called a tableau. This keeps track of which variables are basic, the coefficients of the non-basic variables, the value of the basic variables, the coefficients of the basic variables in the objective function, and the value of the objective function. The objective function information is written along the bottom of the tableau and we refer to it as the profit row. As an example, we write the linear programming problem shown in figure \ref{fill me in} as a system of inequalities, a system of equations, and a tableau.
+
+% Insert maths stuff here
+
+
+There are three main steps to the simplex algorithm: identifying the exiting variable, identifying the entering variable, and pivoting the tableau to make this change of basic and non-basic variables. This corresponds to choosing which direction to move along, determining which point to stop at so that we remain feasible, and then updating our system of equations to reflect this change. We introduce some terms used in the literature to describe what we have been discussing so far and then cover each of the steps in turn.
+
+
+As the non-basic variables are $0$, the middle term will vanish and leave us with $P = V$. This motivates the convention to leave $V$ alone on the right hand side as it shows the value of the profit at the vertex defined by the non-basic variables.
+
+
+\subsubsection{Identifying the Entering Variable}
+
+The entering variable is a non-basic variable that we are going to make basic, which means that we are no longer going to impose that it is equal to 0 and it will be allowed to increase. The choice of entering variable determines the direction in which we move along, and we want to choose a direction that takes us closer to an optimal vertex. Suppose our entering variable is $u_\text{enter}$ and our exiting variable is $w_\text{exit}$, so that our profit equation looks like $P - c_\text{enter} u_\text{enter} - \sum \alpha_i u_i = V$, and our pivot row looks like $w_\text{exit} + c_\text{enter} u_\text{enter} + \sum \beta_j \u_i= b_\text{exit}$. When we pivot, we will replace $u_\text{enter}$ with $u_\text{enter} = b + \sum \beta_i u_i$ in the profit row. If we substitute this into our profit equation however we will have $P + (-b + \sum \alpha_i u_i)$
+
+The entering variable is a non-basic variable that we are going to make basic, which means that we are no longer going to impose that it is equal to 0 and it will be allowed to increase. The choice of entering variable determines the direction in which we move along, and we want to choose a direction that takes us closer to an optimal vertex. To see how to make this choice, we pivot the tableau and look at what happens to the profit. If our entering variable is $u_\text{enter}$ and our exiting variable is $w_\text{exit}$ then we see the following information from the tableau.
+
+\begin{align*}
+	\text{Pivot row:}& & w_\text{exit} + \alpha_\text{enter} u_\text{enter} + \sum_{i=1}^{n-1} \alpha_i u_i &= b_\text{exit}  \\
+    \text{Profit row:}& & P - c_\text{enter} u_\text{enter} - \sum_{i=1}^{n-1} \gamma_i u_i &= V
+\end{align*}
+
+We can rearrange the pivot row to get an equation for $u_\text{enter}$, and we get the following.
+
+$$u_\text{enter} = \frac{1}{\alpha_\text{enter}} \left( b_\text{exit} - w_\text{exit} - \sum_{i=1}^{n-1} \alpha_i u_i \right )$$
+
+Substituting this into the profit row we get,
+
+\begin{align*}
+	P - \frac{c_\text{enter}}{\alpha_\text{enter}} \left( b - w_\text{exit} - \sum_{i=1}^{n-1} \alpha_i u_i \right) - \sum_{i=1}^{n-1} \gamma_i u_i &= V  \\
+	P - \frac{c_\text{enter}}{\alpha_\text{enter}} b - \frac{c_\text{enter}}{\alpha_\text{enter}} - \sum_{i=1}^{n-1} \left( \gamma_i - \frac{c_\text{enter}}{\alpha_\text{enter}} \alpha_i \right) u_i &= V  \\
+	P - \frac{c_\text{enter}}{\alpha_\text{enter}} b - \frac{c_\text{enter}}{\alpha_\text{enter}} - \sum_{i=1}^{n-1} \gamma_i' u_i &= V
+\end{align*}
+
+In the above we have defined $\gamma_i' = \gamma_i - \frac{c_\text{enter}}{\alpha_\text{enter}} \alpha_i$.
+
+Case 1: $c_\text{enter} > 0$, $\alpha_\text{enter} < 0$ or $c_\text{enter} < 0$, $\alpha_\text{enter} > 0$. $c_\text{enter}$ and $\alpha_\text{enter}$ are of different sign, therefore our addition to the value will be negative and the profit will decrease.
+
+Case 2: $c_\text{enter} < 0$, $\alpha_\text{enter} < 0$. As these terms are of the same sign, their quotient will be positive and we move towards our feasible point. However we see that at the vertex defined by this choice of non-basic variables, we will have $u_\text{enter} = \frac{b_\text{exit}}{\alpha_\text{enter}} < 0$. As we saw earlier in #####, this implies that we leave the feasible region and we must reject this case as well.
+
+Case 3: $c_\text{enter} > 0$, $\alpha_\text{enter} > 0$. Similarly to case 2 both terms are of the same sign so we do increase the profit, but we also remain inside the feasible region. This is the only case where both of these conditions are satisfied.
+
+
+######### Include diagram showing the four cases.
+
+From this analysis we see that in the profit row we need to choose our exiting variable coefficient to be negative\footnote{Note that in our analysis we mirrored the convention that the profit row is written as $P - \gamma^Tu = V$ so a minus sign was introduced.}. The magnitude of the coefficient tells us the rate at which we increase the profit, although this does not tell us which direction gives us the maximum increase, or the fastest route around the boundary of the polytope. There are further considerations we could make about the choice of exiting variable that help ensure or speed up convergence of the simplex algorithm, but they are beyond the scope of this essay. If we assign an index to each variable, we will choose valid non-basic variable with the smallest index.
+
+
+
+In the cases we considered above we neglected the case where $c = 0$, and if this is the case then our profit will remain unchanged after pivoting. Geometrically this happens when the intersection of the constraints corresponding to the other non-basic variables is contained within the objective function. If all the other non-basic variables are non-negative then the algorithm has converged, yet we can continue moving around the polytope.
+
+This means that if the profit function is missing at least one non-basic variable upon convergence then the problem has a non-unique solution. By continuing to make pivots and using the non-basic variables with coefficients of $0$ in the profit equation as entering variables, the boundary of the polytope of optimal points can be explored. Any vertices reached by this process must be optimal as they satisfy the convergence conditions and are also feasible points. Any convex combination of them is also feasible due to linearity of the objective function and convexity of the feasible region.
+
+\subsubsection{Identifying the Exiting Variable}
+
+Now that we know which direction to move along we need to know at what point to stop at, and this is determined by the choice of exiting variable. We consider the line that contains the unit vector pointing in this direction that passes through the vertex defined by the current set of basic variables. This line will intersect with other constraints, and each of those constraints defines a vertex\footnote{This will be true unless the line is contained within a constraint.}.
+
+If we move along the line in the opposite direction, we will immediately become infeasible, so we consider what happens if we move in the original direction. As the vertex we started from was a feasible point, we know that the vertex satisfies all the constraints that will be passed through as we move along the line. This means that once we pass through any of these constraints we will no longer satisfy all the constraint, therefore we must stop at the first constraint reached. Our exiting variable will be the variable that corresponds to this constraint.
+
+Suppose we pick an arbitrary row as our pivot row, $$
+
+\subsubsection{Pivoting the Tableau}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
