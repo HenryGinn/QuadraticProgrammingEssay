@@ -11,14 +11,29 @@ $w_k - \frac{\alpha_k}{\alpha_j}w_j - \sum_{i=1}^{n-1} \alpha'_{ik}u_i = b_k - \
 
 % Special cases to consider:
 
-% b_j = 0, \alpha_j = 0
-% We can add any multiple of the pivot row to any other row. It does not change the profit or the value of any of the basic variables therefore we are not moving anywhere. The exiting variable cannot exit
+% \alpha_j = 0
+% If \alpha_j = 0 then the normal vector of the constraint corresponding to w_j is perpendicular to the normal vector corresponding to u (the entering variable). This means the line of intersection of the other basic variables is either parallel to the w_j constraint (b \ne 0) or it lies within the w_j constraint (b = 0). We are letting u enter the set of basic variables, but we are not removing anything from the set of basic variables. This means there are n-1 non-basic variables, and the intersection of the n-1 linearly independent constraints corresponding to those non-basic variables define a line.
+
+Pivot row: $w_j + \sum_{i=1}^{n-1} \alpha_{ij}u_i = b_j$
+Arbitrary row: $w_k + \alpha_k u + \sum_{i=1}^{n-1} \alpha_{ik}u_i = b_k$
+
+Equations:
+$0 = b_j - w_j - \sum_{i=1}^{n-1} \alpha_{ij}u_i$
+$w_k = b_k - \alpha_k u - \sum_{i=1}^{n-1} \alpha_{ik}u_i$
+As usual we set our non-basic variables equal to 0 and this gives us
+
+$0 = b_j - w_j$
+$w_k = b_k - \alpha_k u$
+
+% The first equation fixes the value of w_j. This equation should be fixing the value of u, but as we could not make w_j an exiting variable, it's value is fixed and u is a free variable. If we treat u as a parameter then the other n-1 basic variables become fixed and we have defined a unique point on the line for a given value of u. This line points in the direction of the normal vector for the constraint associated with u. The value of w_j, b_j, gives the minimum distance from the line being traversed and the constraint associated with w_j. We cannot choose u < 0 as we will break the constraint associated with u. We need all the w_k to remain non-negative, so u we need u \le \frac{b_k}{\alpha_k} for all k where this fraction is positive, which is equivalent to u \le min_k \frac{b_k}{\alpha_k} (where the fraction is positive). This corresponds to hitting another constraint. We see that this is precisely the constraint we would have hit if we had ignored this row, even if b_j = 0. For b \ne 0, we can gain some intuition for this by considering what happens as \alpha_j \to 0. As \alpha_j \to 0_-, w_j could not be our exiting variable as we would be moving into the infeasible region. As \alpha_j \to 0_+, we see that \frac{\b_j}{\alpha_j} \to \infty, which corresponds to the intersection point moving further and further away. 
+
 
 % b_j = 0, \alpha_j \ne 0
-% We will be able to eliminate u_j from the other rows, but the profit will not change. This is the case where we have moved to a constraint that intersects the vertex we are already at, and so we do not move at all.
-% Do we need to split this case up further based on the sign of \alpha_j?
+% We will be able to eliminate u_j from the other rows, but the profit will not change. This is the case where we have moved to a constraint that intersects the vertex we are already at, and so we do not move at all. Where b_j > 0 we rejected the case where \alpha_j < 0 as it would move us into the infeasible region, but when b_j = 0 we do not move at all so we remain feasible. 
 
-% b_j \ne 0, \alpha_j = 0
+
+% All \alpha_k \le 0
+% If this is the case then we cannot choose an exiting variable. As we move away from the constraint associated with u, we do not break any constraints. In fact, the only constraints we could hit are those where \alpha_j = 0 with b_j = 0, and here the line on which we are travelling on lies within those constraints and so the solution is unbounded.
 
 
 \subsubsection{Pivoting the Tableau}
