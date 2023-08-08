@@ -25,7 +25,7 @@ As usual we set our non-basic variables equal to 0 and this gives us
 $0 = b_j - w_j$
 $w_k = b_k - \alpha_k u$
 
-% The first equation fixes the value of w_j. This equation should be fixing the value of u, but as we could not make w_j an exiting variable, it's value is fixed and u is a free variable. If we treat u as a parameter then the other n-1 basic variables become fixed and we have defined a unique point on the line for a given value of u. This line points in the direction of the normal vector for the constraint associated with u. The value of w_j, b_j, gives the minimum distance from the line being traversed and the constraint associated with w_j. We cannot choose u < 0 as we will break the constraint associated with u. We need all the w_k to remain non-negative, so u we need u \le \frac{b_k}{\alpha_k} for all k where this fraction is positive, which is equivalent to u \le min_k \frac{b_k}{\alpha_k} (where the fraction is positive). This corresponds to hitting another constraint. We see that this is precisely the constraint we would have hit if we had ignored this row, even if b_j = 0. For b \ne 0, we can gain some intuition for this by considering what happens as \alpha_j \to 0. As \alpha_j \to 0_-, w_j could not be our exiting variable as we would be moving into the infeasible region. As \alpha_j \to 0_+, we see that \frac{\b_j}{\alpha_j} \to \infty, which corresponds to the intersection point moving further and further away. 
+% The first equation fixes the value of w_j. This equation should be fixing the value of u, but as we could not make w_j an exiting variable, it's value is fixed and u is a free variable. If we treat u as a parameter then the other n-1 basic variables become fixed and we have defined a unique point on the line for a given value of u. This line points in the direction of the normal vector for the constraint associated with u. The value of w_j, b_j, gives the minimum distance from the line being traversed and the constraint associated with w_j. We cannot choose u < 0 as we will break the constraint associated with u. We need all the w_k to remain non-negative, so we need u \le \frac{b_k}{\alpha_k} for all k where this fraction is positive, which is equivalent to u \le min_k \frac{b_k}{\alpha_k} (where the fraction is positive). This corresponds to hitting another constraint. We see that this is precisely the constraint we would have hit if we had ignored this row, even if b_j = 0. For b \ne 0, we can gain some intuition for this by considering what happens as \alpha_j \to 0. As \alpha_j \to 0_-, w_j could not be our exiting variable as we would be moving into the infeasible region. As \alpha_j \to 0_+, we see that \frac{\b_j}{\alpha_j} \to \infty, which corresponds to the intersection point moving further and further away. 
 
 
 % b_j = 0, \alpha_j \ne 0
@@ -36,127 +36,7 @@ $w_k = b_k - \alpha_k u$
 % If this is the case then we cannot choose an exiting variable. As we move away from the constraint associated with u, we do not break any constraints. In fact, the only constraints we could hit are those where \alpha_j = 0 with b_j = 0, and here the line on which we are travelling on lies within those constraints and so the solution is unbounded.
 
 
-\subsubsection{Pivoting the Tableau}
 
-Throughout this chapter we have seen many of the steps involved in pivoting the tableau using a technique called row operations to move from one vertex to the next. Here we introduce a technique that allows us to jump to any vertex using only the initial data given to us in the problem and a set of basic variables. It will allow us to apply the tools of numerical linear algebra and also avoid floating point errors accumulating. We begin by giving a brief overview of what a pivot is and demonstrate it with a simple example. The steps are outlined below.
-
-\begin{enumerate}
-	\item Identify the pivot column (the variable that will enter the set of basic variables)
-	\item Identify the pivot row (the variable that will leave the set of basic variables)
-	\item Divide the pivot row so the entering variable has a coefficient of 1
-	\item Subtract multiples of the pivot row from the other rows to eliminate the entering variable
-\end{enumerate}
-
-We recall from section \ref{navigating the polytope} that the goal of pivoting is to rewrite our system of equations in terms of the new non-basic variables, where each equation has only one basic variable. This basic variables must be decoupled from the other equations, and this is achieved in last step. We see how these steps work in practise with an example.
-
-\begin{align*}\label{simplex example}
-	\text{Maximise } 4x + 2y + 5z  \\
-	Subject to:  \\
-	2x + 2.6y + 3z \le 40  \\
-	-x -2y + 4z \le 20  \\
-	4.5x + y + 2z \le 40  \\
-	x + 4y + z \le 36  \\
-\end{align*}
-
-Our objective function is of the form $P = c^Tx$ and our constraints can be written as $Ax \le b$ so this is in the standard form for a linear programming problem. This problem is shown in the figure below.
-
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{}
-    \caption{Example \ref{simplex example} shown geometrically}
-    \label{example simplex algorithm step 0}
-\end{figure}
-
-We have $4$ equations so we introduce $4$ slack variables, $s_1, s_2, s_3$, and $s_4$. The problem is put into tableau form.
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c||c|c|c|c|c|c|c||c|}
-        \hline
-         BV &   $x$ & $y$ & $z$ & $s_1$ & $s_2$ & $s_3$ & $s_4$ & V  \\
-         \hline
-         $s_1$ & 3 & 3 & 2 & 1 & 0 & 0 & 0 & 40  \\
-         $s_2$ & -2 & -3 & 4 & 0 & 1 & 0 & 0 & 15  \\
-         $s_3$ & 4 & 1 & 2 & 0 & 0 & 1 & 0 & 40  \\
-         $s_4$ & 1 & 6 & 3 & 0 & 0 & 0 & 1 & 50  \\
-         \hline
-         $P$ & 4 & 2 & 5 & 0 & 0 & 0 & 0 & 0  \\
-         \hline
-    \end{tabular}
-    \caption*{A linear programming problem written in tableau form}
-    \label{example tableau}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c||c|c|c|c|c|c|c||c|}
-        \hline
-         BV &   $x$ & $y$ & $z$ & $s_1$ & $s_2$ & $s_3$ & $s_4$ & V  \\
-         \hline
-         $s_1$ & 4 & \frac{9}{2} & 0 & 1 & -\frac{1}{2} & 0 & 0 & -\frac{65}{2}  \\
-         $z$ & -\frac{1}{2} & -\frac{3}{4} & 1 & 0 & \frac{1}{4} & 0 & 0 & \frac{15}{4}  \\
-         $s_3$ & 5 & \frac{5}{2} & 0 & 0 & -\frac{1}{2} & 1 & 0 & \frac{65}{2}  \\
-         $s_4$ & 0 & 7 & 0 & 0 & -\frac{1}{2} & -\frac{1}{2} & 1 & \frac{55}{2}  \\
-         \hline
-         $P$ & \frac{13}{2} & \frac{23}{4} & 0 & 0 & -\frac{5}{4} & 0 & 0 & \frac{75}{4}  \\
-         \hline
-    \end{tabular}
-    \caption*{A linear programming problem written in tableau form}
-    \label{example tableau}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c||c|c|c|c|c|c|c||c|}
-        \hline
-         BV &   $x$ & $y$ & $z$ & $s_1$ & $s_2$ & $s_3$ & $s_4$ & V  \\
-         \hline
-         $s_1$ & 0 & \frac{5}{2} & 0 & 1 & -\frac{1}{10} & -\frac{4}{5} & 0 & \frac{13}{2}  \\
-         $z$ & 0 & -\frac{1}{2} & 1 & 0 & \frac{1}{5} & \frac{1}{10} & 0 & 7  \\
-         $x$ & 1 & \frac{1}{2} & 0 & 0 & -\frac{1}{10} & \frac{1}{5} & 0 & \frac{13}{2}  \\
-         $s_4$ & 0 & 7 & 0 & 0 & -\frac{1}{2} & -\frac{1}{2} & 1 & \frac{55}{2}  \\
-         \hline
-         $P$ & 0 & \frac{5}{2} & 0 & 0 & -\frac{3}{5} & -\frac{13}{10} & 0 & 61  \\
-         \hline
-    \end{tabular}
-    \caption*{A linear programming problem written in tableau form}
-    \label{example tableau}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c||c|c|c|c|c|c|c||c|}
-        \hline
-         BV &   $x$ & $y$ & $z$ & $s_1$ & $s_2$ & $s_3$ & $s_4$ & V  \\
-         \hline
-         $y$ & 0 & 1 & 0 & \frac{2}{5} & -\frac{1}{25} & -\frac{8}{25} & 0 & \frac{13}{5}  \\
-         $z$ & 0 & 0 & 1 & \frac{1}{5} & \frac{9}{50} & -\frac{3}{50} & 0 & \frac{83}{10}  \\
-         $x$ & 1 & 0 & 0 & -\frac{1}{5} & -\frac{2}{25} & \frac{9}{25} & 0 & \frac{26}{5}  \\
-         $s_4$ & 0 & 0 & 0 & -\frac{14}{5} & -\frac{11}{50} & \frac{87}{50} & 1 & \frac{43}{10}  \\
-         \hline
-         $P$ & 0 & 0 & 0 & -1 & -\frac{1}{2} & -\frac{1}{2} & 0 & \frac{135}{2}  \\
-         \hline
-    \end{tabular}
-    \caption*{A linear programming problem written in tableau form}
-    \label{example tableau}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c||c|c|c|c|c|c|c||c|}
-        \hline
-         BV &   $x$ & $y$ & $z$ & $s_1$ & $s_2$ & $s_3$ & $s_4$ & V  \\
-         \hline
-         $s_1$ &  &  &  &  &  &  &  &   \\
-         $s_2$ &  &  &  &  &  &  &  &   \\
-         $s_3$ &  &  &  &  &  &  &  &   \\
-         $s_4$ &  &  &  &  &  &  &  &   \\
-         \hline
-         $P$ &  &  &  &  &  &  &  & 0  \\
-         \hline
-    \end{tabular}
-    \caption*{A linear programming problem written in tableau form}
-    \label{example tableau}
-\end{table}
 
 Once the slack variables are added we have a system of equations, ${Ax = b}$. We can write $x_B$ and $x_N$ have components equal to the basic and non-basic variables respectively. Similarly we define the matrices $A_B$ and $A_N$ which have the columns of the indices of the basic and non-basic variables respectively. In these new variables the system ${Ax = b}$ turns into ${A_B x_B + A_N x_N = b}$, and similarly the objective function can be written as ${c_B^T x_B + c_N^T x_N}$.
 
@@ -172,3 +52,5 @@ We never find the inverse of $A_B$. Instead we compute it's LU factorisation and
 The tableau is ${x_B = A_B^{-1} b - A_B^{-1} A_N x_N}$. The components of $x_N$ are 0, so the first term here , $A_B^{-1} b$, gives the value of $x_B$ (the numbers in the value column of the tableau). The second term forms the non-basic part of the tableau, and we use this to find the pivot column. We write $A_i$ for the column of $A_N$ corresponding to the i'th non-basic variable, and ${A_B^{-1} A_i}$ gives the value of the column in the tableau. We can find this by solving the linear system ${A_B v = A_i}$ for $v$.
 
 Similarly we can extract information from the profit row. The profit is given by ${c_B^T A_B^{-1} b}$, and we note that this is the same as finding the dot product of $c_B$ with the values of the basic variables found above. ${c_N^T - c_B^T A_B^{-1} A_N}$ gives the non-basic values in the profit row. Taking the transpose of this gives ${c_N - A_N^T A_B^{-T} c_B}$. We can find the value of ${A_B^{-T} c_B}$ by solving the linear system ${A_B^T v = c_B}$, and then substitute this in to find the profit row. We note that once the LU factorisation of $A$ has been found, the LU factorisation of $A^T$ is also given as ${A^T = (LU)^T = U^T L^T}$ and $U^T$, $L^T$ are lower and upper triangular matrices respectively.
+
+
