@@ -53,4 +53,22 @@ The tableau is ${x_B = A_B^{-1} b - A_B^{-1} A_N x_N}$. The components of $x_N$ 
 
 Similarly we can extract information from the profit row. The profit is given by ${c_B^T A_B^{-1} b}$, and we note that this is the same as finding the dot product of $c_B$ with the values of the basic variables found above. ${c_N^T - c_B^T A_B^{-1} A_N}$ gives the non-basic values in the profit row. Taking the transpose of this gives ${c_N - A_N^T A_B^{-T} c_B}$. We can find the value of ${A_B^{-T} c_B}$ by solving the linear system ${A_B^T v = c_B}$, and then substitute this in to find the profit row. We note that once the LU factorisation of $A$ has been found, the LU factorisation of $A^T$ is also given as ${A^T = (LU)^T = U^T L^T}$ and $U^T$, $L^T$ are lower and upper triangular matrices respectively.
 
+\begin{align}\label{tableau from basic variables}
+    \begin{split}
+        A_B v_B + A_N v_N &= b  \\
+        A_B v_B &= b - A_N v_N  \\
+        v_B &= A_B^{-1}\left( b - A_N v_N \right)
+    \end{split}
+\end{align}
 
+This can be substituted into our equation for the objective function.
+\begin{align}\label{objective function from basic variables}
+    \begin{split}
+        P &= c_B^T v_B + c_N^T v_N  \\
+        P &= c_B^T A_B^{-1}\left( b - A_N v_N \right) + c_N^T v_N  \\
+        P &= c_B^T A_B^{-1}b - c_B^T A_B^{-1} A_N v_N + c_N^T v_N  \\
+        P &= c_B^T A_B^{-1}b + \left( c_N^T - c_B^T A_B^{-1} A_N \right) v_N
+    \end{split}
+\end{align}
+
+Together \ref{tableau from basic variables} and \ref{objective function from basic variables} for th
